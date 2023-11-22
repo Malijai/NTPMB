@@ -1,0 +1,64 @@
+{% load i18n %}
+{% load static %}
+
+<html>
+<title>Manitoba NTP1 Replication Phase 2</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{% static 'accueil/img/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'accueil/w3.css' %}">
+    <link rel="stylesheet" href="{% static 'accueil/w3-theme-maison.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+<body>
+<div class="principal">
+
+<!-- Header -->
+<!-- <header class="w3-container w3-theme" id="myHeader"> -->
+<header class="w3-row w3-theme-d3" id="myHeader">
+    <div class="w3-quarter">
+    </div>
+    <div class="w3-half w3-center">
+        <h4>Manitoba NTP1 Replication Phase 2</h4>
+    </div>
+     <div class="w3-quarter w3-center">
+         <a href="{% url 'logout' %}" class="button"> Logout</a>
+</div>
+</header>
+   <div class="w3-container w3-padding">
+   {% if NTPMB %}
+       <div class="w3-container w3-padding w3-theme-l4">
+            <h2>{{ user.first_name }}, {{ user.last_name }}, welcome to clinical data entry system</h2>
+            <h3><a href="{% url 'SelectPersonne' %}" class="btn-default" >Go to the clinical dataentry system of Manitoba NTP1 Replication Phase 2</a></h3>
+       </div>
+   {% endif %}
+   {% if GRCMB %}
+       <div class="w3-container w3-padding w3-theme-l4">
+            <h2>{{ user.first_name }}, {{ user.last_name }}, welcome to RCMP data entry system</h2>
+            <h3><a href="" class="btn-default" >Go to the RCMP dataentry system of Manitoba NTP1 Replication Phase 2</a></h3>
+       </div>
+   {% endif %}
+
+<!-- {% if user.profile.province == Profile.ALL %}
+        <h3><a href="{% url 'SelectPersonne' %}" class="btn-default" >{% trans "Exportation des données NTP2" %}</a></h3>
+   {% endif %} -->
+
+<!-- Footer -->
+</div>
+
+</div>
+
+<footer class="w3-container w3-theme-d5 footerw3">
+   {% blocktrans %}
+        <h5><a href="mailto:malijai.caulet.ippm@ssss.gouv.qc.ca?subject=NTP informations">Contact</a></h5>
+   {% endblocktrans %}
+  <div style="position:relative;bottom:30px;" class="w3-tooltip w3-right">
+    <span class="w3-text w3-theme-light w3-padding">Haut</span>
+    <a class="w3-text-white" href="#myHeader"><span class="w3-xlarge">
+    <i class="fa fa-chevron-circle-up"></i></span></a>
+  </div>
+</footer>
+</body>
+</html>
+
+
+

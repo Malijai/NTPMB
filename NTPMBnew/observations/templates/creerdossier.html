@@ -1,0 +1,51 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+   <head>
+        <title>Questions etc</title>
+        <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+        <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css" />
+        <link rel="icon" href="{% static 'observations/img/favicon.ico' %}">
+        <script type="text/javascript" src="/static/observations/jquery.js"></script>
+        <script type="text/javascript" src="/static/observations/tabber.js"></script>
+        <link rel="stylesheet" type="text/css" href="/static/observations/sondageM.css" />
+        <link rel="stylesheet" type="text/css" href="/static/observations/w3-theme-maison.css" />
+
+</head>
+    <body>
+    <form action="" method="post">
+        <div id="container">
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="alert alert-{{msg.level_tag}}" role="alert">
+                    {{msg.message}}
+                    </div>
+                {% endfor %}
+            {% endif %}
+<h2>New file creation:
+Be carefull all these data will not be accessible after saving</h2>
+{% csrf_token %}
+    {% for question in questions %}
+        {% if question.typequestion.nom == 'TITLE' %}
+          <div class="tabbertab"><h3>{{ question.questionen}}</h3>
+          <table><tr><td></td><td></td><td></td></tr>
+        {% else %}
+            <tr class="{% cycle 'Q1' 'Q2' %}">
+                {% include "create_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id varname=question.varname %}
+                {% include "aide_snippet.html" with aide=question.aideen %}
+            </tr>
+        {% endif %}
+    {% endfor %}
+</table>
+
+
+       </div>
+    </div>
+         <div class="footer">
+            <a href="{% url 'SelectPersonne' %}" class="btn-default">Return to choices</a>
+            <button type="submit" class="btn-default">Save</button>
+         </div>
+    </form>
+    </body>
+</html>

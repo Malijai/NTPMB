@@ -1,0 +1,24 @@
+{% load formulaires %}
+{% with type=typequest|stringformat:"s" %}
+{% autoescape off %}
+    <td class=" {{ classe }} " width = "75%">{{ textequest }}</td>
+    <td class=" {{ classe }} " width = "20%">
+    {% if type == "STRING" or type == "NUMBER" %}
+        {% fait_textechar questid type persid=pid relation=relation cible=cible uid=user.id vid=vid auid=auid %}</td>
+    {% elif type == "DATE" or type == "TIME"  %}
+        {% fait_date questid type persid=pid relation=relation cible=cible uid=user.id vid=vid auid=auid %}</td>
+    {% elif type == "CATEGORIAL" or type == "BOOLEAN"%}
+         {% fait_reponse questid type persid=pid relation=relation cible=cible uid=user.id vid=vid auid=auid %}</td>
+    {% elif type == "LANGUE"  or type == "PAYS" or type == "VIOLATION" or type == "COUR" or type == "GENDER" or type == "HCR20" %}
+        {% fait_listes questid type persid=pid relation=relation cible=cible uid=user.id  vid=vid auid=auid %}</td>
+    {% elif type == "VICTIME" %}
+        {% fait_victimes questid persid=pid relation=relation cible=cible uid=user.id  vid=vid auid=auid %}</td>
+    {% elif type == "ETABLISSEMENT"  or type == "MUNICIPALITE" %}
+        {% fait_autres_tables questid type persid=pid relation=relation cible=cible uid=user.id vid=vid auid=auid %}</td>
+    {% elif type == "DICHO" or type == "DICHOU" or type == "DICHON"  %}
+        {% fait_ouinon questid type persid=pid relation=relation cible=cible uid=user.id vid=vid auid=auid %}</td>
+    {% else %}
+        <td class=" {{ classe }} " width = "20%">{{ type }}</td>
+    {% endif %}
+{% endautoescape %}
+{% endwith %}

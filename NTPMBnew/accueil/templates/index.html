@@ -1,0 +1,52 @@
+{% load i18n %}
+{% load static %}
+<html>
+<title>Manitoba NTP1 Replication Phase 2</title>
+<meta charset="UTF-8">
+<meta name="description" content="Manitoba NTP1 Replication Phase 2">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'accueil/w3.css' %}">
+    <link rel="stylesheet" href="{% static 'accueil/w3-theme-maison.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="icon" href="{% static 'accueil/img/favicon.ico' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'accueil/img/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'accueil/img/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'accueil/img/favicon-16x16.png' %}">
+<body>
+<!-- <header class="w3-container w3-theme" id="myHeader"> -->
+<header class="w3-row w3-theme-d3" id="myHeader">
+    <div class="w3-quarter">
+    </div>
+    <div class="w3-half w3-center">
+        <h4>Manitoba NTP1 Replication</h4>
+        <h1 class="w3-xxlarge w3-animate-bottom">Phase 2</h1>
+    </div>
+    <div class="w3-quarter">
+    </div>
+</header>
+  <div class="w3-container w3-padding">
+    <div class="principal w3-theme-l5">
+    <div class="w3-theme-l2" style="padding:10px;">
+        <h3>Manitoba NTP1 Replication Phase 2</h3>
+      <a href="{% url 'entreesystemes' %}" class="w3-bar-item w3-button">Private access</a>
+    </div>
+    </div>
+</div>
+<footer class="w3-container w3-theme-d5 footerw3">
+   {% blocktrans %}
+        <h5>System done in <img src="/static/accueil/django-logo-negative.png" height="32px">
+        Available here <a href="https://github.com/Malijai/NTP2_Recherche" class="date" ><img src="/static/images/GitHub-Mark-Light-32px.png"></a>
+        Theme from <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a> -
+        <a href="mailto:malijai.caulet.ippm@ssss.gouv.qc.ca?subject=NTP_MB informations">Contact</a></h5>
+   {% endblocktrans %}
+  <div style="position:relative;bottom:30px;" class="w3-tooltip w3-right">
+    <span class="w3-text w3-theme-light w3-padding">Haut</span>
+    <a class="w3-text-white" href="#myHeader"><span class="w3-xlarge">
+    <i class="fa fa-chevron-circle-up"></i></span></a>
+  </div>
+</footer>
+
+
+
+
+

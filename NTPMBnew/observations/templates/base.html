@@ -1,0 +1,181 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+   <head>
+        <title>Questions etc</title>
+        <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+        <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css" />
+        <link rel="icon" href="{% static 'observations/img/favicon.ico' %}">
+        <script type="text/javascript" src="/static/observations/jquery.js"></script>
+        <script type="text/javascript" src="/static/observations/tabber.js"></script>
+        <link rel="stylesheet" type="text/css" href="/static/observations/sondageM.css" />
+        <link rel="stylesheet" type="text/css" href="/static/observations/w3-theme-maison.css" />
+
+<script type="text/javascript" >
+$(function() {
+	$("input[@id^=row-]").blur(function(){
+		var reg = new RegExp("X", "");
+		res = this.id.split(reg);
+		var valeurcible=res[2];
+		var relation=res[1];
+		var enfant=res[0];
+		var valeurcible2;
+		if(valeurcible == "vide"){
+			valeurcible2="";
+		}else{
+			valeurcible2=valeurcible;
+			}
+		if (relation == 'eq'){
+			if($(this).val() == valeurcible2) {
+				$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+				$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}else{
+			if($(this).val() != valeurcible2){
+				$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+				$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}
+	});
+});
+</script>
+
+<script type="text/javascript" >
+$(function() {
+	$("input[@id^=row-]").click(function(){
+		var reg = new RegExp("X", "");
+		res = this.id.split(reg);
+		var valeurcible=res[2];
+		var relation=res[1];
+		var enfant=res[0];
+		var valeurcible2;
+		var courant=$(this).val();
+		if(valeurcible=="vide"){
+			valeurcible2="";
+		}else{
+			valeurcible2= valeurcible;
+			valeurcible=parseInt(valeurcible, 10);
+			courant=parseInt(courant, 10);
+			valeurcible2=parseInt(valeurcible2, 10);
+			}
+		if (relation=='eq'){
+			if(courant == valeurcible2) {
+					$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+					$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}else if(relation=='inf'){
+			if(courant < valeurcible2) {
+					$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+					$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}else if(relation=='sup'){
+			if(courant > valeurcible2) {
+					$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+					$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}else if(relation == 'diff'){
+			if(courant != valeurcible2) {
+					$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+					 $('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}
+	});
+});
+</script>
+
+<script type="text/javascript" >
+$(function() {
+$("select[@id^=row-]").click(function(){
+
+	var reg = new RegExp("X", "");
+	res = this.id.split(reg);
+	var valeurcible=res[2];
+	var relation=res[1];
+	var enfant=res[0];
+	var courant=$(this).val();
+
+	if(valeurcible=="vide"){
+			valeurcibl2="";
+	}
+    valeurcible=parseInt(valeurcible, 10);
+    courant=parseInt(courant, 10);
+
+	if (relation=='eq'){
+		if(courant == valeurcible) {
+			$('.child-'+enfant+relation+valeurcible).show();
+		}else{
+			$('.child-'+enfant+relation+valeurcible).hide();
+		}
+		}else if(relation =='inf'){
+			if(courant < valeurcible) {
+					$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+					$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}else if(relation == 'sup'){
+			if(courant > valeurcible) {
+					$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+					$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}else{
+			if(courant != valeurcible){
+				$('.child-'+enfant+relation+valeurcible).show();
+			}else{
+				$('.child-'+enfant+relation+valeurcible).hide();
+			}
+		}
+	});
+});
+</script>
+
+<script language="JavaScript" type="text/javascript">
+    function sayHello()
+        {
+            alert("Click on the SAVE button.Don t forget to save your work. Clicking on OK will not save anything");
+        }
+
+    function timeGreeting()
+        {
+            //assign the timer to a variable:
+            //you need to do this so the timer can be
+            //referenced by another function when you want
+            //to stop it:
+            var greeting = setInterval(sayHello, 900000);
+            //Notice how the time is set in milliseconds.
+        }
+    timeGreeting();
+</script>
+
+</head>
+    <body>
+    <form action="" method="post">
+        <div id="container">
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="alert alert-{{msg.level_tag}}" role="alert">
+                    {{msg.message}}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+         <div class="footer">
+            <a href="{% url 'resumedossier' pid %}" class="btn-default">Return to summary</a>
+            <button type="submit" class="btn-default">Save</button>
+         </div>
+    </form>
+    </body>
+</html>
+
+

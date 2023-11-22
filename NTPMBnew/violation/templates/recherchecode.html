@@ -1,0 +1,28 @@
+{% load i18n %}
+{% load static %}
+<html>
+   <head>
+       <title>Recherche code de violation</title>
+       <link rel="stylesheet" type="text/css" href="/static/w3.css" />
+    </head>
+    <body>
+
+<h2>Violation Code search</h2>
+
+    {% if message %}
+        <div class="alert alert-{{msg.level_tag}}" role="alert">
+            <h3>The following code: <u>{{ message}}</u> is not in the database. Please verify it is a Canadian Criminal Code one</h3>
+        </div>
+    {% endif %}
+            <p>Drugs codes are not listed here. Look at the violation codes in the 4110 to 4470 range and use the description to chose the good one</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <table class="w3-table-all">
+          {{ form.as_table }}
+        <tr><td></td><td><button type="submit" class="btn-default"> Rechercher </button></td>
+     </table>
+    </form>
+
+    </body>
+</html>

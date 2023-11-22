@@ -1,0 +1,24 @@
+{% load i18n %}
+{% load static %}
+<html>
+   <head>
+         <title>Questions etc</title>
+         <!--<link rel="stylesheet" href="{% static 'blog/style_b.css' %}">-->
+         <link rel="stylesheet" href="{% static '/violation/w3.css' %}">
+    </head>
+    <body>
+<h2>Violation Code results</h2>
+    <table class="w3-table-all">
+        <tr class="row2"><th>Criminal code</th><th>Violation code</th></tr>
+        {% for code in codes %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td>{{ code.reponse_valeur }} = {{ code.reponse_en }}</td>
+                <td>{{ code.violation.reponse_valeur }} {{ code.violation.reponse_en }}</td></tr>
+        {% endfor %}
+        <tr></tr>
+         <tr><td></td>
+             <td><b><a href="{% url 'Rechercherviol' %}">Violation code finder</a></b></td></tr>
+    </table>
+
+    </body>
+</html>

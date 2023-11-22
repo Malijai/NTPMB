@@ -1,0 +1,120 @@
+{% load i18n %}
+{% load static %}
+
+<html>
+    <head>
+        <title>NTP 1 Manotoba part 2</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'observations/w3.css' %}">
+        <link rel="stylesheet" href="{% static 'observations/w3-theme-maison.css' %}">
+        <script type="text/javascript" src="/static/observations/jquery.js"></script>
+        <script type="text/javascript" src="/static/observations/tabber.js"></script>
+        <link rel="stylesheet" type="text/css" href="{% static 'observations/sondageM.css' %}" />
+        <link rel="icon" href="{% static 'accueil/img/favicon.ico' %}">
+    </head>
+<body class="w3-theme-l5">
+<header class="w3-row w3-theme-d3" id="myHeader">
+
+    <div class="w3-quarter">
+        <a href="{% url 'logout' %}" class="w3-button w3-theme-action"> Logout</a>
+    </div>
+    <div class="w3-half w3-center">
+        <h4>NTP1 Manitoba. Part 2 -  Data entry</h4>
+    </div>
+    <div class="w3-quarter w3-right-align">
+    </div>
+</header>
+<div class="principal">
+{% if messages %}
+    {% for msg in messages %}
+        <div class="alert alert-{{msg.level_tag}}" role="alert">
+        {{msg.message}}
+        </div>
+    {% endfor %}
+{% endif %}
+<h2>{{ user.first_name }} {{ user.last_name }} </h2>
+
+   <div class="tabber">
+       <div class="tabbertab">
+           <h3>INSTRUCTIONS</h3><b> To use the system</b>
+           <p>To enter data in the system you need to first create a file respecting the inclusion criterias.<br>
+               Then you will be able to code the verdict and hearing sections.</p>
+           <h4>For each individual:</h4>
+           <ul>
+           <li>For each verdict you will need:</li>
+               <ul>
+                    <li>the verdict details</li>
+                    <li>the verdict expert report</li>
+                    <li>Linked with each verdict you will code some informations about the CCCB hearings:</li>
+                        <ul>
+                            <li>the hearing details</li>
+                            <li>If there are multiple annual hearings, fully code only the first and last hearing. For all “middle” hearings, code only the date of the hearing and the disposition type.</li>
+                            <ul>
+                            <li>the expert report submitted to the hearing</li>
+                            <li>the unfit to Stand Trial variable from the expert report</li>
+                            <li>the gladue items</li>
+                            </ul>
+                        </ul>
+               </ul>
+           <li>The RCMP files (later)</li>
+
+           </ul>
+       </div>
+       <div class="tabbertab">
+           <form method="post" action="">
+           {% csrf_token %}
+           <h3>File creation</h3>
+               <b>To create a new file</b>
+            <table>
+                <tr><td></td><td><button type="submit" class="placeboutons" name="Creer">New File</button></td></tr>
+            </table>
+           </form>
+       </div>
+        <div class="tabbertab">
+           <form method="post" action="">
+           {% csrf_token %}
+           <h3>Choose file to continue</h3><b>from already created files to continue data entry</b>
+                <table>
+                <tr><td>File</td><td><select name="personneid" >
+                    <option value="">Select a case</option>
+                    {% for personne in personnes %}
+                    <option value="{{personne.id}}">{{personne.code}}-{{personne.hospcode}}</option>
+                    {% endfor %}
+                    </select></td></tr>
+                <tr><td></td><td><button type="submit" class="placeboutons" name="Choisir">Choose this individual</button></td></tr>
+            </table>
+        </form>
+       </div>
+        <div class="tabbertab">
+        <h3>RCMP data</h3>
+
+
+       </div>
+
+       <div class="tabbertab">
+<h3>To export questionnaires in PDF</h3>
+        <ul>
+             <li>Socio demo<a href="{% url 'questions_pdf' 4 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Verdict details<a href="{% url 'questions_pdf' 10 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Verdict Expert assessment<a href="{% url 'questions_pdf' 11 %}" class= 'button'><b> >> Do pdf</b></a></li>
+             <li>Hearing details and expert assessment<a href="{% url 'questions_pdf' 21 %}" class= 'button'><b> >> Do pdf</b></a></li>
+         </ul>
+   </div>
+
+   {% if user.profile.province == 10 %}
+       <div class="tabbertab">
+        <h3>To export data</h3>
+
+       </div>
+   {% endif %}
+   </div>
+
+</div>
+<footer class="w3-container w3-theme-d5 footerw3">
+    <h5><a class="w3-text-white" href="mailto:malijai.caulet.ippm@ssss.gouv.qc.ca?subject=NTP2 troubles">For any question or problem : contact</a></h5>
+</footer>
+
+</body>
+</html>
+

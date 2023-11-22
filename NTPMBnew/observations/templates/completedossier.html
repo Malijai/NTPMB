@@ -1,0 +1,98 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+   <head>
+        <title>Questions etc</title>
+        <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+        <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css" />
+        <link rel="icon" href="{% static 'observations/img/favicon.ico' %}">
+        <script type="text/javascript" src="/static/observations/jquery.js"></script>
+        <script type="text/javascript" src="/static/observations/tabber.js"></script>
+        <link rel="stylesheet" type="text/css" href="/static/observations/sondageM.css" />
+        <link rel="stylesheet" type="text/css" href="/static/observations/w3-theme-maison.css" />
+</head>
+<body>
+    <form action="" method="post">
+<div id="container">
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{{msg.level_tag}}" role="alert">
+                {{msg.message}}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% csrf_token %}
+<h2>Summary of already coded infos: file code {{ code }}</h2>
+    {% for ligne in donnees %}
+<div class="w3-row w3-border w3-theme-d2">
+    <div class="w3-container w3-theme-l5">
+        <h3>{{ ligne.questionscible }}</h3>
+        <ul>
+        {% for reponse in ligne.reponses %}
+            <li>Verdict: {{reponse.verdict }}; Hearing: {{ reponse.audience }}, Date: {{ reponse.date }}, Status: {{ reponse.reponse_texte }}
+                {% if reponse.reponse_texte == 'Finished' %}
+                    </li>
+                {% elif reponse.reponse_texte == 'Not started' and ligne.qid == 4 %}
+                    --> <a href="{% url 'saveMB' pid ligne.qid 100 100 %}" class="btn-default">Do socio demo section</a></li>
+                {% elif reponse.vid > 0 %}
+                    --> <a href="{% url 'saveMB' pid ligne.qid reponse.vid reponse.auid %}" class="btn-default">Continue</a></li>
+                {% endif %}
+        {% endfor %}
+        </ul>
+    {% if ligne.qid == 10 %}
+        <h4>Start a new verdict details section</h4>
+             <p>
+            <select name="verdict10" ><option value="">Select a NEW verdict</option>
+            {% for verdict in vdts %}
+            <option value="{{verdict.id}}">{{ verdict.nom_en}}</option>
+            {% endfor %}
+            </select>-->
+            <b><button type="submit" class="btn-default" name="Choisir10">New verdict details</button></b>
+                <hr>
+            </p>
+    {% elif ligne.qid == 11 %}
+    <h4>Start a new verdict expert assessment section</h4>
+        <p>
+        <select name="verdict11" ><option value="">Select a NEW verdict</option>
+        {% for verdict in vdts %}
+        <option value="{{verdict.id}}">{{ verdict.nom_en}}</option>
+        {% endfor %}
+        </select>-->
+        <button type="submit" class="btn-default" name="Choisir11">New verdict Expert assessment</button>
+    </p>
+    {% elif ligne.qid == 21 %}
+    <h4>Start a new Hearing section</h4>
+        <p><select name="verdict21" ><option value="">Select a NEW verdict</option>
+        {% for verdict in vdts %}
+        <option value="{{verdict.id}}">{{ verdict.nom_en}}</option>
+        {% endfor %}
+        </select>
+        ->
+        <select name="hearing21" ><option value="">Select a NEW hearing</option>
+        {% for hearing in hs %}
+        <option value="{{hearing.id}}">{{ hearing.nom_en}}</option>
+        {% endfor %}
+        </select>-->
+        <button type="submit" class="btn-default" name="Choisir21">New hearing</button>
+    {% endif %}
+    </div>
+</div>
+{% endfor %}
+<div class="w3-row w3-border w3-theme-d4">
+    <div class="w3-container w3-theme-l4">
+    <input name="pid" type="hidden" value="{{ pid }}" />
+    <p>Once you are satisfied you can close the file,
+        it will not appear in the file choices anymore
+        <button type="submit" class="placeboutons" name="Fermer">Close the file</button>
+    </p>
+</div>
+</div>
+</form>
+<p>The RCMP data in another phase</p>
+<div class="footer">
+    <a href="{% url 'SelectPersonne' %}" class="btn-default">Return to questionnaire choice</a>
+</div>
+</body>
+</html>

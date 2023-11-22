@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% load formulaires %}
+
+{% block content %}
+<h2> {{ code }}-{{ questionnaire }}-{{ verdict }}-{{ audience }}</h2>
+{% csrf_token %}
+   <input name="pid" type="hidden" value="{{ pid }}" />
+   <input name="qid" type="hidden" value="{{ qid }}" />
+   <input name="vid" type="hidden" value="{{ vid }}" />
+   <input name="auid" type="hidden" value="{{ auid }}" />
+{% if qid == 10 %}
+      <a href="{% url 'Rechercherviol' %}"  target="Codes Violation/CC"
+         onclick="window.open('', 'Codes Violation/CC', 'width=800,height=300,status=yes,resizable=yes,scrollbars=yes,toolbar=no')"
+         class="btn-default">Violation code finder for offences done after 1985</a>
+{% endif %}
+
+   <div class="tabber">
+    {% for question in questions %}
+        {% if question.typequestion.nom == 'TITLE' %}
+            {% if forloop.counter > 1 %}
+                </table></div>
+            {% endif %}
+                 <div class="tabbertab"><h3>{{ question.questionen|slice:"0:15" }}</h3><b>{{ question.questionen}}</b>
+                 <table><tr><td></td><td></td><td></td></tr>
+        {% elif question.typequestion.nom == 'COMMENT' %}
+            <tr><td class="plusdeux" colspan="3"><b>{{ question.questionen }}</b></td></tr>
+        {% else %}
+            {% if question.id not in ascendancesF and question.id not in ascendancesM %}
+                {% if question.qstyle == 'plusunun' %}
+                    <tr class="w3-theme-d2">
+                {% else  %}
+                    <tr class="{% cycle 'Q1' 'Q2' %}">
+                {% endif %}
+                    {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id varname=question.varname %}
+                    {% include "aide_snippet.html" with aide=question.aideen  classe="" %}
+                </tr>
+            {% elif question.id in ascendancesF and question.id in ascendancesM %}
+                     {% for enfant in question.questionnmb_set.all %}
+                        {% if forloop.counter == 1 %}
+                            <tr style="display: none;" class="child-row-{{question.parent_id}}{{question.relation}}{{question.cible}}">
+                                {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id relation=enfant.relation cible=enfant.cible classe="fillemere" varname=question.varname %}
+                                {% include "aide_snippet.html" with aide=question.aideen classe="fillemere" %}
+                            </tr>
+                        {% endif %}
+                     {% endfor %}
+            {% elif question.id in ascendancesM and question.id not in ascendancesF %}
+                <tr class="mere">
+                    {% for enfant in question.questionnmb_set.all %}
+                        {% if forloop.counter == 1 %}
+                            {% include "champs_snippet.html" with typequest=question.typequestion textequest=question.questionen questid=question.id relation=enfant.relation cible=enfant.cible classe="mere" varname=question.varname %}
+                            {% include "aide_snippet.html" with aide=question.aideen %}
+                </tr>
+                        {% endif %}
+                     {% endfor %}
+            {% endif %}
+            {% for enfant in question.questionnmb_set.all %}
+                {% if enfant.id not in ascendancesM %}
+                     <tr style="display: none;" class="child-row-{{enfant.parent_id}}{{enfant.relation}}{{enfant.cible}}">
+                     {% if enfant.id|divisibleby:2 %}
+                         {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id classe="fifille" varname=enfant.varname %}
+                         {% include "aide_snippet.html" with aide=enfant.aideen classe="fifille" %}
+                    {% else %}
+                         {% include "champs_snippet.html" with typequest=enfant.typequestion textequest=enfant.questionen questid=enfant.id classe="fille" varname=enfant.varname %}
+                         {% include "aide_snippet.html" with aide=enfant.aideen classe="fille" %}
+                    {% endif %}
+                     </tr>
+                 {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+</table>
+
+</div><!--Fermeture de la boite à onglets-->
+{% endblock content %}
