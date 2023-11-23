@@ -208,13 +208,16 @@ def creerdossier(request):
                                 sdsexe=reponses['sdsexe'],
                                 dob=reponses['dob'],
                                 prenom=reponses['prenom'],
-                                assistant_id=request.user.id
+                                assistant_id=request.user.id,
+                                created_at=datetime.datetime.now().strftime('%Y-%m-%d'),
+                                updated_at=datetime.datetime.now().strftime('%Y-%m-%d'),
                                 )
         Personnegrc.objects.create(
                                 codeGRC_id=Newid,
                                 prenom=reponses['prenom'],
                                 codeMB=reponses['personne_code'],
-                                ferme=0
+                                ferme=0,
+                                updated_at = datetime.datetime.now().strftime('%Y-%m-%d'),
                                 )
         textefin=  "{}  has been created".format(reponses['personne_code'])
         messages.add_message(request, messages.ERROR, textefin)
