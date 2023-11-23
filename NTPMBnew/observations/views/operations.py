@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 import datetime
+from datetime import date
 # Create your views here.
 # import logging
 from django.conf import settings
@@ -185,7 +186,8 @@ def creerdossier(request):
                 if an != "":
                     mois = request.POST.get('q{}_month'.format(question.id))
                     jour = request.POST.get('q{}_day'.format(question.id))
-                    reponseaquestion = "{}-{}-{}".format(an, mois, jour)
+                    reponse = date(int(an), int(mois), int(jour))
+                    reponseaquestion = reponse
                 else:
                     reponseaquestion = ''
             else:
