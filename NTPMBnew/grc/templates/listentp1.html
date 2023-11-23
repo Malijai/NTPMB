@@ -1,0 +1,70 @@
+{% extends 'personne_base.html' %}
+{% load i18n %}
+
+{% block maincontent %}
+    <div class="w3-row w3-theme-d3">
+        <div class="pagination">
+             {% if personnes.has_other_pages %}
+                {% if personnes.has_previous %}
+                  <a href="?page={{ personnes.previous_page_number }}">&laquo;</a>
+                {% else %}
+                   <a href="#" >&laquo;</a>
+                {% endif %}
+                {% for i in personnes.paginator.page_range %}
+                  {% if personnes.number == i %}
+                   <a href="#" class="active"(current)>{{ i.codeGRC_id }}</a>
+                  {% else %}
+                    <a href="?page={{ i.codeGRC_id }}">{{ i.codeGRC_id }}</a>
+                  {% endif %}
+                {% endfor %}
+                {% if personnes.has_next %}
+                  <a href="?page={{ personnes.next_page_number }}">&raquo;</a>
+                {% else %}
+                   <a href="#" >&raquo;</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="w3-container w3-padding-10">
+        <table class="w3-table-all">
+            <tr><th>Code GRC & Prénom</th>
+                <th>Personne</th>
+                <th>Délits</th>
+                <th>Fermeture</th>
+            </tr>
+            {% for personne in personnes %}
+                <tr><td>{{personne.codeMB }} -- {{personne.prenom }}</td>
+                <td><a class="w3-btn w3-dark-grey w3-hover-light-grey" href="{% url 'personne_edit' personne.codeGRC_id %}">{% trans "Mettre a jour la personne" %}</a></td>
+                <td><a class="w3-btn w3-dark-grey w3-hover-light-grey" href="{% url 'personne_delits' personne.codeGRC_id %}">{% trans "Ajouter des délits" %}</a></td>
+                <td>{% trans "Action irréversible : " %}<a class="w3-btn w3-pale-red w3-hover-deep-orange" href="{% url 'personne_ferme' personne.codeGRC_id %}">{% trans "Fermer le dossier" %}</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <footer>
+        <div class="w3-row w3-theme-d3">
+            <div class="pagination">
+            {% if personnes.has_other_pages %}
+                {% if personnes.has_previous %}
+                  <a href="?page={{ personnes.previous_page_number }}">&laquo;</a>
+                {% else %}
+                   <a href="#" >&laquo;</a>
+                {% endif %}
+                {% for i in personnes.paginator.page_range %}
+                  {% if personnes.number == i %}
+                   <a href="#" class="active"(current)>{{ i }}</a>
+                  {% else %}
+                    <a href="?page={{ i }}">{{ i }}</a>
+                  {% endif %}
+                {% endfor %}
+                {% if personnes.has_next %}
+                  <a href="?page={{ personnes.next_page_number }}">&raquo;</a>
+                {% else %}
+                   <a href="#" >&raquo;</a>
+                {% endif %}
+            {% endif %}
+            </div>
+        </div>
+    </footer>
+{% endblock maincontent %}
+

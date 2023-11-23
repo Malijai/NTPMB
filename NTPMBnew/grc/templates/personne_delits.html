@@ -1,0 +1,104 @@
+{% extends 'personne_base.html' %}
+{% load i18n %}
+
+{% block maincontent %}
+<div class="w3-container">
+   <h2 class="w3-amber">#{{ personne.codeGRC }} - {{ personne.prenom }}- "New offences and already recorded offences in the DB"</h2>
+</div>
+<div class="w3-row-padding">
+    <div class="w3-container w3-theme-l4 w3-cell w3-mobile">
+        <form method="POST" class="delits-form" enctype="multipart/form-data" id="delit">
+        {% csrf_token %}
+        <table class="w3-table-all">
+            <th colspan="2" class="w3-button w3-theme-l2" >
+            <a href="{% url 'Rechercherviol' %}"
+               target="Codes Violation/CC"
+               onclick="window.open('', 'Codes Violation/CC', 'width=800,height=300,status=yes,resizable=yes,scrollbars=yes,toolbar=no')"
+               >Violation code finder</a>
+            </th>
+        <tr><td>{{ form.date_sentence.label_tag }} {{ form.date_sentence }}</td>
+            <td>{{ form.ordre_delit.label_tag }} {{ form.ordre_delit }}</td></tr>
+        <tr><td>{{ form.lieu_sentence.label_tag }} {{ form.lieu_sentence }}</td>
+            <td>{{ form.type_tribunal.label_tag }} {{ form.type_tribunal }}</td>
+         <tr><td>{{ form.codeCCdelit.label_tag }} {{ form.codeCCdelit }}</td>
+            <td>{{ form.descriptiondelit.label_tag }} {{ form.descriptiondelit }}</td></tr>
+        <tr><td>{{ form.nombre_chefs.label_tag }} {{ form.nombre_chefs }}</td>
+            <td>{{ form.violation.label_tag }} {{ form.violation }}</td></tr>
+        <tr><td colspan="2">{{ form.verdict.label_tag }}{{ form.verdict }}</td></tr>
+    <tr><td colspan="2" class="w3-theme-l2"></td></tr>
+        <tr><td colspan="2">{{ form.amendeON.label_tag }} {{ form.amendeON }}</td></tr>
+        <tr><td>{{ form.amende_type.label_tag }} {{ form.amende_type }}</td>
+            <td>{{ form.amendecout.label_tag }} {{ form.amendecout }}</td></tr>
+    <tr><td colspan="2" class="w3-theme-l2"></td></tr>
+        <tr><td colspan="2">{{ form.detentionON.label_tag }} {{ form.detentionON }}</td></tr>
+        <tr><td>{{ form.detentionduree.label_tag }} {{ form.detentionduree }}</td>
+            <td>{{ form.unitedetention.label_tag }} {{ form.unitedetention}}
+    <tr><td colspan="2" class="w3-theme-l2"></td></tr>
+        <tr><td colspan="2">{{ form.probationON.label_tag }} {{ form.probationON }}</td></tr>
+        <tr><td>{{ form.probationduree.label_tag }} {{ form.probationduree }}</td>
+            <td>{{ form.uniteprobation.label_tag }}{{ form.uniteprobation }}</td></tr>
+    <tr><td colspan="2" class="w3-theme-l2"></td></tr>
+        <tr><td colspan="2">{{ form.interdictionON.label_tag }} {{ form.interdictionON }}</td></tr>
+        <tr><td>{{ form.interdictionduree.label_tag }} {{ form.interdictionduree }}</td>
+            <td>{{ form.uniteinterdiction.label_tag }}{{ form.uniteinterdiction }}</td></tr>
+        <tr><td colspan="2">{{ form.interdictiondetails.label_tag }} {{ form.interdictiondetails }}</td></tr>
+    <tr><td colspan="2" class="w3-theme-l2"></td></tr>
+        <tr><td colspan="2">{{ form.surcisON.label_tag }} {{ form.surcisON }}</td></tr>
+        <tr><td>{{ form.surcisduree.label_tag }} {{ form.surcisduree }}</td>
+            <td>{{ form.unitesurcis.label_tag }}{{ form.unitesurcis }}</td></tr>
+    <tr><td colspan="2" class="w3-theme-l2"></td></tr>
+        <tr><td colspan="2">{{ form.autreON.label_tag }} {{ form.autreON }}</td></tr>
+        <tr><td colspan="2">{{ form.autredetails.label_tag }} {{ form.autredetails }}</td></tr>
+                    <tr><td colspan="2" class="w3-theme-l2"></td></tr>
+        <tr><td><button type="submit" class="w3-button w3-amber" name="Savequit">Save & Quit</button></td>
+            <td><button type="submit" class="w3-button w3-orange" name="Savedelit">Save & add offence / release</button></td>
+        </tr>
+        </table>
+        </form>
+    </div>
+    <div class="w3-container w3-cell w3-mobile w3-theme-l5">
+        <form method="POST" class="libe-form" enctype="multipart/form-data" id="liberation">
+        {% csrf_token %}
+            <table class="w3-table-all">
+            {{ libe_form.as_table }}
+            <tr><td colspan="2"><button type="submit" class="w3-button w3-amber" name="Savelibequit">Release : save & Quit</button></td></tr>
+            <tr><td colspan="2"><button type="submit" class="w3-button w3-orange" name="Savelibe">Release : save & add offence / release</button></td>
+            </tr>
+            </table>
+        </form>
+
+        <div class="w3-padding-16 w3-theme-l4">
+            <h3>Recorded offence</h3>
+            <table class="w3-table-all">
+                <tr>
+                    <th>Date of decision</th>
+                    <th>Rank</th>
+                    <th>CC code</th>
+                    <th>Action" </th>
+                </tr>
+            {% for delit in delits %}
+            <tr>
+                <td>{{ delit.date_sentence }}</td>
+                <td>{{ delit.ordre_delit }}</td>
+                <td>{{ delit.codeCCdelit }}</td>
+                <td><a class="w3-btn w3-red w3-hover-purple" href="{% url 'supp_delit' delit.id %}">Delete</a></td>
+            </tr>
+            {% endfor %}
+            </table>
+            <h3>Recorded releases in the DB</h3>
+            <table class="w3-table-all">
+                <tr>
+                    <th>Release date</th>
+                </tr>
+            {% for liberation in liberations %}
+            <tr>
+                <td>{{ liberation.date_liberation }}</td>
+            </tr>
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% load i18n %}
+{% load static %}
+
+<html>
+<head>
+<title>Personnes Reprise GRC NTP1</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static '/grc/w3.css' %}">
+    <link rel="stylesheet" href="{% static '/grc/w3-theme-black.css' %}">
+</head>
+
+<body>
+
+<header class="w3-row w3-theme-d1" id="myHeader">
+    <div class="w3-quarter">
+       <a href="{% url 'logout' %}" class="w3-button w3-theme-action"> Logout</a>
+    </div>
+    <div class="w3-half w3-center">
+        <a  href=/media/documents/263_PDFsam_3302_Q7_V3-eng.pdf target="_blank">Violation codes</a> --
+        <h4>{{ entete }}</h4>
+    </div>
+</header>
+    <div id="container">
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="alert alert-{{msg.level_tag}}" role="alert">
+                {{msg.message}}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+    {% block maincontent %}
+    {% endblock %}
+
+</body>
+</html>
