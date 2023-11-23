@@ -34,7 +34,7 @@
    {% if GRCMB %}
        <div class="w3-container w3-padding w3-theme-l4">
             <h2>{{ user.first_name }}, {{ user.last_name }}, welcome to RCMP data entry system</h2>
-            <h3><a href="" class="btn-default" >Go to the RCMP dataentry system of Manitoba NTP1 Replication Phase 2</a></h3>
+            <h3><a href="{% url 'liste_personne' %}" class="btn-default" >Go to the RCMP dataentry system of Manitoba NTP1 Replication Phase 2</a></h3>
        </div>
    {% endif %}
 
