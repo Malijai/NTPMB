@@ -58,7 +58,7 @@ def personne_ferme(request, pk):
     personne.ferme = 1
     personne.save()
     messages.success(request, "Fermeture de " + str(personne.codeGRC))
-    return redirect(liste_personne, personne.province_id)
+    return redirect(liste_personne)
 
 
 @login_required(login_url=settings.LOGIN_URI)
@@ -78,7 +78,7 @@ def personne_edit(request, pk):
                 personne.ferme = 1
                 personne.save()
                 messages.success(request,"No file for this indifvidual, file closed")
-                return redirect(liste_personne, personne.province_id)
+                return redirect(liste_personne)
             else:
                 if request.POST.get('dateprint') != "":
                     personne.save()
@@ -96,7 +96,7 @@ def personne_edit(request, pk):
 def supp_delit(request, id):
     delit = get_object_or_404(Delits, id=id)
     Delits.objects.filter(id=id).delete()
-    messages.success(request, ("An offence of {} has been deleted").format(delit.personnegrc))
+    messages.success(request, "An offence of {} has been deleted".format(delit.personnegrc))
     return redirect(personne_delits, delit.personnegrc_id)
 
 
@@ -120,9 +120,9 @@ def personne_delits(request, pk):
                 libe.RA = request.user
                 libe.personnegrc = personne
                 libe.save()
-                messages.success(request, 'A release has been added to {}.').format(personne.codeGRC)
+                messages.success(request, 'A release has been added to {}.'.format(personne.codeMB))
                 if 'Savelibequit' in request.POST:
-                    return redirect('liste_personne', personne.province_id)
+                    return redirect('liste_personne')
                 elif 'Savelibe':
                     return redirect(personne_delits, personne.id)
         if not libe_form.is_valid():
@@ -133,12 +133,11 @@ def personne_delits(request, pk):
                     delit = form.save(commit=False)
                     delit.RA = request.user
                     delit.personnegrc = personne
-                    delit.province = personne.province
                     delit.nouveaudelit = 1
                     delit.save()
-                    messages.success(request, 'The offences of #  {} has been updated.').format(personne.codeGRC)
+                    messages.success(request, 'The offences of #  {} has been updated.'.format(personne.codeGRC))
                     if 'Savequit' in request.POST:
-                        return redirect(liste_personne, personne.province_id)
+                        return redirect(liste_personne)
                     else:
                         return redirect(personne_delits, personne.id)
         if not libe_form.is_valid():
@@ -192,9 +191,8 @@ def do_dico_pdf(request):
     Story.append(Paragraph("Variable Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data format &nbsp;&nbsp;&nbsp;Question text/Value list",
                            styles["Normal"]))
     for field in all_fields:
-        if field.name != 'id' and field.name != 'nouveaudelit' \
-                and field.name != 'updated_at' and field.name != 'created_at' and field.name != 'province' \
-                and field.name != 'old_RA' and field.name != 'RA':
+        if field.name != 'id' and field.name != 'updated_at' and field.name != 'created_at' \
+                and field.name != 'RA':
             verbose = Delits._meta.get_field(field.name).verbose_name
             typef = Delits._meta.get_field(field.name).get_internal_type()
             Story.append(Spacer(1, 0.2 * inch))
@@ -217,8 +215,8 @@ def do_dico_pdf(request):
                     Story.append(p)
             elif typef == "ForeignKey":
                 tableL = Delits._meta.get_field(field.name).remote_field.model.__name__
-                if tableL != 'Personnegrc' and tableL != 'Province' and tableL != 'User':
-                    Tableliee = apps.get_model('NTP1Reprise', tableL)
+                if tableL != 'Personnegrc'  and tableL != 'User':
+                    Tableliee = apps.get_model('grc', tableL)
                     liste = Tableliee.objects.all().order_by('reponse_valeur')
                     espace = '&nbsp;' * 10 + '&#x00B7;'
                     for val in liste:
@@ -236,9 +234,7 @@ def do_dico_pdf(request):
     Story.append(Paragraph("RCMP Individual data", styles["Heading1"]))
 
     Story.append(Spacer(1, 0.5 * inch))
-    Story.append(Paragraph("I have used an ancient system which was used to update data. So the dateprint1, "
-                            " oldpresencefps, delit refers to the "
-                           "presence of previously saved data, the other fields refers to the updated variables.",
+    Story.append(Paragraph("",
                            styles["Normal"]))
     Story.append(Spacer(1, 0.2 * inch))
 
@@ -340,7 +336,7 @@ class Echo(object):
 def export_csv_sent(request, pi):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
-    personnes = Personnegrc.objects.filter(province_id=pi).order_by('codeGRC')
+    personnes = Personnegrc.objects.all().order_by('codeGRC')
     toutesleslignes = []
     ligne = []
     entete = ['personnegrc', 'date_sentence', 'type_tribunal', 'lieu_sentence', 'ordre_delit', 'codeCCdelit',
@@ -392,7 +388,7 @@ def traduitbool(val):
 def export_csv_libe(request, pi):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
-    personnes = Personnegrc.objects.filter(province_id=pi).order_by('codeGRC')
+    personnes = Personnegrc.objects.all().order_by('codeGRC')
     toutesleslignes = []
     ligne = []
     entete = ['personnegrc', 'date_liberation', 'type']
@@ -424,7 +420,7 @@ def export_csv_libe(request, pi):
 def export_csv_dc(request, pi):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
-    personnes = Personnegrc.objects.filter(province_id=pi).order_by('codeGRC')
+    personnes = Personnegrc.objects.all().order_by('codeGRC')
     toutesleslignes = []
     ligne = []
     entete = ['personnegrc', 'date_dcd']
