@@ -9,12 +9,16 @@ from django.contrib import messages
 from django.db.models import Q, Count
 from observations.models import MBpersonnes, Questionnaire, Questionnmb, MBresultats,Audience, Verdict
 from grc.models import Personnegrc
+from django.shortcuts import render
+from django.http import HttpResponse, StreamingHttpResponse
+import csv
 
+DATE = datetime.datetime.now().strftime('%Y %b %d')
 
 @login_required(login_url=settings.LOGIN_URI)
 def select_personne(request):
     # Pour selectionner personne, questionnaire en fonction de l'assistant
-    personnes = MBpersonnes.objects.filter(~Q(completed=1)& Q(assistant=request.user))
+    personnes = MBpersonnes.objects.filter(~Q(completed=1) & Q(assistant=request.user))
     if request.method == 'POST':
         if request.POST.get('personneid') == '':
             messages.add_message(request, messages.ERROR, 'You have forgotten to chose a file')
@@ -141,7 +145,7 @@ def resumedossier(request, pid):
                                                  'vdts': vdts, 'hs': hs}, )
                 else:
                     vid = request.POST.get('verdict21')
-                    auid = request.POST.get('verdict21')
+                    auid = request.POST.get('hearing21')
                     return redirect(
                         saveMB,
                         pid,
@@ -227,26 +231,6 @@ def creerdossier(request):
                 )
 
 
-def faireautrechose(request):
-    qid = 500
-    questionstoutes = Questionnmb.objects.filter(questionnaire__id=qid)
-    return render(
-        request,
-        'creerdossier.html',
-        {'questions': questionstoutes}
-        )
-
-
-def faireunechose(request):
-    qid = 500
-    questionstoutes = Questionnmb.objects.filter(questionnaire__id=qid)
-    return render(
-        request,
-        'creerdossier.html',
-        {'questions': questionstoutes}
-        )
-
-
 @login_required(login_url=settings.LOGIN_URI)
 def saveMB(request, pid, qid, vid, auid):
     # genere le questionnaire demande NON repetitif
@@ -309,5 +293,85 @@ def genere_questions(qid):
     return ascendancesF, ascendancesM, questionstoutes
 
 
+# Pour l'exportation en streaming du CSV
+class Echo(object):
+    # An object that implements just the write method of the file-like interface.
+    def write(self, value):
+        # Write the value by returning it, instead of storing in a buffer
+        return value
 
 
+def prepare_csv(request, questionnaire, iteration, seuil, tous):
+    questions = Questionnmb.objects.\
+                        filter(questionnaire_id=questionnaire).\
+                        exclude(Q(typequestion_id=7) | Q(typequestion_id=100)).\
+                        order_by('questionno').values('id', 'varname')
+    inf = iteration * seuil
+    sup = (iteration + 1) * seuil
+    if tous == 0:
+        personnes = MBpersonnes.objects.filter(Q(completed=1) | Q(completed=2)). \
+                                    values('id', 'code', 'completed', 'prenom')[inf:sup]
+    else:
+#        personnes = MBpersonnes.objects.all().values('id', 'code', 'completed', 'prenom')[inf:sup]
+        personnes = MBpersonnes.objects.all().values('id', 'code', 'completed', 'prenom')[inf:sup]
+        print("Personnes 1", personnes)
+#    if questionnaire > 1000:
+#        toutesleslignes = fait_csv_repetitive(questionnaire, personnes, questions, iteration)
+#    else:
+    toutesleslignes = fait_csv(questionnaire, personnes, questions, iteration)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="exportation.txt"'
+
+    now = datetime.datetime.now().strftime('%Y_%m_%d')
+    filename = 'Datas_{}_{}_L{}.csv'.format(questionnaire, now, iteration)
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+    response = StreamingHttpResponse((writer.writerow(row) for row in toutesleslignes),
+                                     content_type="text/csv")
+    response['Content-Disposition'] = 'attachment;  filename="' + filename + '"'
+    return response
+
+
+def fait_csv(questionnaire, personnes, questions, iteration):
+    toutesleslignes = []
+    entete = ['ID', 'code', 'Assistant', 'Verdict', 'Audience']
+
+    if questionnaire == 4:
+        entete.append('hospcode')
+        entete.append('selecthosp')
+        entete.append('completed')
+    for question in questions:
+        entete.append(question['varname'])
+    toutesleslignes.append(entete)
+    for personne in personnes:
+        assistants = MBresultats.objects.order_by().filter(personne_id=personne['id']).values_list('assistant_id',
+                                                                                                    flat=True).distinct()
+        for assistant in assistants:
+            if questionnaire == 4:
+                ligne = [personne['id'], personne['code'], personne['hospcode'], assistant, personne['completed']]
+            else:
+                verdicts = MBresultats.objects.order_by().filter(personne_id=personne['id'], assistant_id=assistant).values_list('verdict_id',
+                                                                                                         flat=True).distinct()
+                for verdict in verdicts:
+                    audiences = MBresultats.objects.order_by().filter(personne_id=personne['id'],
+                                                                      assistant_id=assistant, verdict_id=verdict)\
+                                                                     .values_list('audience_id', flat=True).distinct()
+
+                    for audience in audiences:
+                        ligne = [personne['id'], personne['code'], assistant, verdict, audience]
+                        for question in questions:
+                            try:
+                                donnee = MBresultats.objects.filter(personne_id=personne['id'], question_id=question['id'],
+                                                                 assistant_id=assistant,
+                                                                 verdict_id=verdict,
+                                                                 audience_id=audience).values('reponse_texte')
+                            except MBresultats.DoesNotExist:
+                                donnee = None
+                            if donnee:
+                                ligne.append(donnee[0]['reponse_texte'])
+                            else:
+                                ligne.append('-')
+                    toutesleslignes.append(ligne)
+
+    return toutesleslignes
