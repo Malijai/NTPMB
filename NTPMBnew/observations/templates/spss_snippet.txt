@@ -1,0 +1,43 @@
+{% load spsslistevaleurs %}
+{% with type=typequest|stringformat:"s" %}
+{% autoescape off %}
+{% if type == "DICHO" or type == "DICHOU" or type == "DICHON" %}
+VALUE LABELS
+{% spaceless %}
+{{ varname }}
+{% spss_dichou type %}
+{% endspaceless %}
+{% elif type == "CATEGORIAL" or type == "BOOLEAN" %}
+VALUE LABELS
+{% spaceless %}
+{{ varname }}
+{% spss_reponse questid %}
+{% endspaceless %}
+{% elif type == "VICTIME" %}
+VALUE LABELS
+{% spaceless %}
+{{ varname }}
+{% spss_table_victime %}
+{% endspaceless %}
+{% elif type == "PROVINCE"  or type == "PAYS" or type == "LANGUE" or type == "VIOLATION"  or type == "POSOLOGIE" %}
+VALUE LABELS
+{% spaceless %}
+{{ varname }}
+{% spss_table type %}
+{% endspaceless %}
+{% elif type == "HCR20" or type == "BOOLEAN" %}
+VALUE LABELS
+{% spaceless %}
+{{ varname }}
+{% spss_table type %}
+{% endspaceless %}
+{% elif type ==  "ETABLISSEMENT"  or type ==  "MUNICIPALITE" %}
+VALUE LABELS
+{% spaceless %}
+{{ varname }}
+{% spss_table_valeurs type %}
+{% endspaceless %}
+{% endif %}
+{% endautoescape %}
+{% endwith %}
+
