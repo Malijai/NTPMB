@@ -37,6 +37,13 @@
             <h3><a href="{% url 'liste_personne' %}" class="btn-default" >Go to the RCMP dataentry system of Manitoba NTP1 Replication Phase 2</a></h3>
        </div>
    {% endif %}
+   {% if EXPT %}
+       <div class="w3-container w3-padding w3-theme-l5">
+            <h2>{{ user.first_name }}, {{ user.last_name }}, welcome data exportation system</h2>
+            <h3><a href="{% url 'prepare_export' %}" class="btn-default" >Go to data export system</a></h3>
+       </div>
+   {% endif %}
+
 
 <!-- {% if user.profile.province == Profile.ALL %}
         <h3><a href="{% url 'SelectPersonne' %}" class="btn-default" >{% trans "Exportation des données NTP2" %}</a></h3>

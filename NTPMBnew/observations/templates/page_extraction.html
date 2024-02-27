@@ -1,0 +1,32 @@
+{% load i18n %}
+{% load static %}
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'observations/w3.css' %}">
+        <link rel="stylesheet" href="{% static 'observations/w3-theme-maison.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'observations/sondageM.css' %}" />
+        <link rel="icon" href="{% static 'accueil/img/favicon.ico' %}">
+    </head>
+<body class="w3-theme-l5">
+<header class="w3-row w3-theme-d3" id="myHeader">
+    <div class="w3-quarter">
+        <a href="{% url 'logout' %}" class="w3-button w3-theme-action"> Logout</a>
+    </div>
+    <div class="w3-half w3-center">
+        <h4>NTP1 Manitoba. Part 2 -  Data exportation</h4>
+    </div>
+    <div class="w3-quarter w3-right-align">
+    </div>
+</header>
+  <div class="w3-container w3-sand">
+
+<h3>To export data</h3>
+{% for page in iterations %}
+    <h3>Link to the extraction of data ({{ seuil }} users/file):
+        <a href="{% url 'prepare_csv' questionnaire page seuil %}">
+        {{ questionnaire_nom }} :#{{ page|add:"1" }}</a></h3>
+{% endfor %}
+</div>
+</body>
+</html>
+

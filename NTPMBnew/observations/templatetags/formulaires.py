@@ -1,6 +1,6 @@
 from django import template
 from django.apps import apps
-from observations.models import MBresultats, Reponsemb, Victime,Typequestion,Listevaleur
+from observations.models import MBresultats, Reponsemb, Victime, Typequestion, Listevaleur
 from django import forms
 import re
 

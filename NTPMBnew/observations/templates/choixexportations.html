@@ -1,0 +1,57 @@
+{% load i18n %}
+{% load static %}
+
+<html>
+    <head>
+        <title>NTP 1 Manotoba part 2</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'observations/w3.css' %}">
+        <link rel="stylesheet" href="{% static 'observations/w3-theme-maison.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'observations/sondageM.css' %}" />
+        <link rel="icon" href="{% static 'accueil/img/favicon.ico' %}">
+    </head>
+<body class="w3-theme-l5">
+<header class="w3-row w3-theme-d3" id="myHeader">
+    <div class="w3-quarter">
+        <a href="{% url 'logout' %}" class="w3-button w3-theme-action"> Logout</a>
+    </div>
+    <div class="w3-half w3-center">
+        <h4>NTP1 Manitoba. Part 2 -  Data exportation</h4>
+    </div>
+    <div class="w3-quarter w3-right-align">
+    </div>
+</header>
+
+  <div class="w3-container w3-sand">
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{{msg.level_tag}}" role="alert">
+            {{msg.message}}
+            </div>
+        {% endfor %}
+    {% endif %}
+<h3>To export data</h3>
+    <form method="post" action="">
+       {% csrf_token %}
+           <table class="w3-table-all">
+                <tr><td>Questionnaire : Choose the questionnaire to export (for data or syntax)</td>
+                    <td><select name="questionnaireid" >
+                    <option value="">-</option>
+                    {% for questionnaire in questionnaires %}
+                            <option value="{{questionnaire.id}}">{{ questionnaire.nom_en}}</option>
+                    {% endfor %}
+                    </select>
+                    </td>
+                </tr>
+           <tr><td>Number of files by batch</br>(sometimes the server can lose the connection if there are too many files at one time)
+           </br>Default is 50</td>
+               <td><input type="number" id="seuil" name="seuil" value="50"></label></td></tr>
+           <tr><td></td><td><button type="submit" class="placeboutons" name="ExporterS">Export data only</button></td></tr>
+           <tr><td>Don't forget to choose a questionnaire</td><td><button type="submit" class="placeboutons" name="fait_entete_SPSS">Export SPSS syntax</button></td></tr>
+        </table>
+   </form>
+</div>
+</div>
+</body>
+</html>

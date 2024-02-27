@@ -13,6 +13,7 @@ def accueil(request):
 def entreesystemes(request):
     NTPMB = False
     GRCMB = False
+    EXPT = False
     droits = Projet.objects.filter(user_id=request.user.id)
     for droit in droits:
         if droit.projet == Projet.NTPMB:
@@ -22,9 +23,11 @@ def entreesystemes(request):
         elif droit.projet == Projet.ALL:
             NTPMB = True
             GRCMB = True
+            EXPT = True
 
     return render(request, "entreesystemes.html",
                       {
                         'NTPMB': NTPMB,
                         'GRCMB': GRCMB,
+                        'EXPT': EXPT,
                       })

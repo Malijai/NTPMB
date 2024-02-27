@@ -12,6 +12,8 @@ from grc.models import Personnegrc
 from django.shortcuts import render
 from django.http import HttpResponse, StreamingHttpResponse
 import csv
+from django.template import loader
+
 
 DATE = datetime.datetime.now().strftime('%Y %b %d')
 
@@ -88,7 +90,7 @@ def resumedossier(request, pid):
                         date = MBresultats.objects.get(personne_id=pid, question__id=275, verdict=resultat.verdict,
                                                            audience=resultat.audience, assistant=request.user)
                         quest['date'] = date.reponse_texte
-                    elif questionnaire.id == 20 and MBresultats.objects.filter(personne_id=pid, question__id=535,
+                    elif questionnaire.id == 21 and MBresultats.objects.filter(personne_id=pid, question__id=535,
                                                                                verdict=resultat.verdict,
                                                                                audience=resultat.audience,
                                                                                assistant=request.user).exists():
@@ -301,23 +303,16 @@ class Echo(object):
         return value
 
 
-def prepare_csv(request, questionnaire, iteration, seuil, tous):
+@login_required(login_url=settings.LOGIN_URI)
+def prepare_csv(request, questionnaire, iteration, seuil):
     questions = Questionnmb.objects.\
                         filter(questionnaire_id=questionnaire).\
                         exclude(Q(typequestion_id=7) | Q(typequestion_id=100)).\
                         order_by('questionno').values('id', 'varname')
     inf = iteration * seuil
     sup = (iteration + 1) * seuil
-    if tous == 0:
-        personnes = MBpersonnes.objects.filter(Q(completed=1) | Q(completed=2)). \
-                                    values('id', 'code', 'completed', 'prenom')[inf:sup]
-    else:
-#        personnes = MBpersonnes.objects.all().values('id', 'code', 'completed', 'prenom')[inf:sup]
-        personnes = MBpersonnes.objects.all().values('id', 'code', 'completed', 'prenom')[inf:sup]
-        print("Personnes 1", personnes)
-#    if questionnaire > 1000:
-#        toutesleslignes = fait_csv_repetitive(questionnaire, personnes, questions, iteration)
-#    else:
+    personnes = MBpersonnes.objects.all().values('id', 'code', 'completed', 'prenom', 'filecode')[inf:sup]
+
     toutesleslignes = fait_csv(questionnaire, personnes, questions, iteration)
 
     response = HttpResponse(content_type='text/csv')
@@ -335,43 +330,115 @@ def prepare_csv(request, questionnaire, iteration, seuil, tous):
 
 def fait_csv(questionnaire, personnes, questions, iteration):
     toutesleslignes = []
-    entete = ['ID', 'code', 'Assistant', 'Verdict', 'Audience']
-
+    entete = ['ID', 'code', 'Assistant', 'Verdict', 'Hearing']
     if questionnaire == 4:
-        entete.append('hospcode')
-        entete.append('selecthosp')
-        entete.append('completed')
+        entete.append('Filecode')
+        entete.append('Completed')
     for question in questions:
         entete.append(question['varname'])
     toutesleslignes.append(entete)
     for personne in personnes:
-        assistants = MBresultats.objects.order_by().filter(personne_id=personne['id']).values_list('assistant_id',
-                                                                                                    flat=True).distinct()
+        assistants = MBresultats.objects.filter(personne_id=personne['id']).values_list('assistant_id', flat=True).distinct()
         for assistant in assistants:
             if questionnaire == 4:
-                ligne = [personne['id'], personne['code'], personne['hospcode'], assistant, personne['completed']]
+                ligne = [personne['id'], personne['code'],  assistant, 'NA','NA', personne['filecode'], personne['completed']]
+                for question in questions:
+                    truc = faitdonnee(personne['id'], question['id'], assistant, 100, 100)
+                    ligne.append(truc)
+                toutesleslignes.append(ligne)
             else:
-                verdicts = MBresultats.objects.order_by().filter(personne_id=personne['id'], assistant_id=assistant).values_list('verdict_id',
-                                                                                                         flat=True).distinct()
+                verdicts = MBresultats.objects.order_by().filter(personne_id=personne['id'], assistant_id=assistant).\
+                                                            exclude(verdict_id=100).\
+                                                            values_list('verdict_id', flat=True).distinct()
                 for verdict in verdicts:
-                    audiences = MBresultats.objects.order_by().filter(personne_id=personne['id'],
-                                                                      assistant_id=assistant, verdict_id=verdict)\
-                                                                     .values_list('audience_id', flat=True).distinct()
-
+                    if questionnaire == 10 or questionnaire == 11:
+                        audiences =[100]
+                    else:
+                        audiences = MBresultats.objects.order_by().filter(personne_id=personne['id'],
+                                                                        assistant_id=assistant, verdict_id=verdict).\
+                                                                        exclude(audience_id=100).\
+                                                                        values_list('audience_id', flat=True).distinct()
                     for audience in audiences:
                         ligne = [personne['id'], personne['code'], assistant, verdict, audience]
                         for question in questions:
-                            try:
-                                donnee = MBresultats.objects.filter(personne_id=personne['id'], question_id=question['id'],
-                                                                 assistant_id=assistant,
-                                                                 verdict_id=verdict,
-                                                                 audience_id=audience).values('reponse_texte')
-                            except MBresultats.DoesNotExist:
-                                donnee = None
-                            if donnee:
-                                ligne.append(donnee[0]['reponse_texte'])
-                            else:
-                                ligne.append('-')
-                    toutesleslignes.append(ligne)
-
+                            truc = faitdonnee(personne['id'], question['id'], assistant, verdict, audience)
+                            ligne.append(truc)
+                        toutesleslignes.append(ligne)
     return toutesleslignes
+
+
+@login_required(login_url=settings.LOGIN_URI)
+def prepare_export(request):
+    questionnaires = Questionnaire.objects.filter(Q(id__lte=30))
+    if 'ExporterS' in request.POST:
+        questionnaire = request.POST.get('questionnaireid')
+        seuil = request.POST.get('seuil')
+        return redirect('prepare_csv1', questionnaire=questionnaire, seuil=seuil)
+    elif 'fait_entete_SPSS' in request.POST:
+        questionnaire = request.POST.get('questionnaireid')
+        return redirect('fait_entete_spss', questionnaire=questionnaire)
+    return render(
+        request,
+        'choixexportations.html',
+        {
+            'questionnaires': questionnaires,
+        }
+    )
+
+@login_required(login_url=settings.LOGIN_URI)
+def prepare_csv1(request, questionnaire, seuil):
+    nombre_personnes = MBpersonnes.objects.filter(Q(completed=1) | Q(completed=2)).count()
+    questionnaire_nom = Questionnaire.objects.get(pk=questionnaire)
+    #seuil = 150
+    if nombre_personnes > seuil:
+        reste = 0
+        if nombre_personnes % seuil > 0:
+            reste = 1
+        iterations = int(nombre_personnes / seuil) + reste
+    else:
+        iterations = 1
+    return render(request, 'page_extraction.html',
+                  {
+                      'iterations': range(iterations),
+                      'questionnaire': questionnaire,
+                      'questionnaire_nom': questionnaire_nom.nom_en,
+                      'seuil': seuil,
+                  })
+
+
+def faitdonnee(personne, question, assistant, verdict, audience):
+    truc = ""
+    try:
+        donnee = MBresultats.objects.filter(personne_id=personne, question_id=question,
+                                            assistant_id=assistant,
+                                            verdict_id=verdict,
+                                            audience_id=audience).values('reponse_texte')
+    except MBresultats.DoesNotExist:
+        donnee = None
+    if donnee:
+        truc = donnee[0]['reponse_texte']
+    else:
+        truc = '-'
+    return truc
+
+
+@login_required(login_url=settings.LOGIN_URI)
+def fait_entete_spss(request, questionnaire):
+    ## Prepare les syntaxes pour exportation / importation des donnees pour les stats
+    # Pour les syntaxes SPSS, fait le fichier des variables et des listes de valeurs
+    response = HttpResponse(content_type='text/csv')
+    filename1 = '"enteteSPSS_{}.sps"'.format(questionnaire)
+    response['Content-Disposition'] = 'attachment; filename={}'.format(filename1)
+    questions = Questionnmb.objects.filter(questionnaire_id=questionnaire). \
+                                    exclude(Q(typequestion=7) | Q(typequestion=100)). \
+                                    order_by('questionno')
+
+    if questionnaire == 4:
+        SD = 1
+    else:
+        SD = 0
+    t = loader.get_template('spss_syntaxe.txt')
+    response.write(
+        t.render({'questions': questions, 'SD': SD}))
+    return response
+
