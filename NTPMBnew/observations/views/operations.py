@@ -311,7 +311,7 @@ def prepare_csv(request, questionnaire, iteration, seuil):
                         order_by('questionno').values('id', 'varname')
     inf = iteration * seuil
     sup = (iteration + 1) * seuil
-    personnes = MBpersonnes.objects.all().values('id', 'code', 'completed', 'prenom', 'filecode')[inf:sup]
+    personnes = MBpersonnes.objects.all().values('id', 'code', 'completed', 'prenom', 'filecode', 'sdsexe', 'dob')[inf:sup]
 
     toutesleslignes = fait_csv(questionnaire, personnes, questions, iteration)
 
@@ -330,17 +330,24 @@ def prepare_csv(request, questionnaire, iteration, seuil):
 
 def fait_csv(questionnaire, personnes, questions, iteration):
     toutesleslignes = []
-    entete = ['ID', 'code', 'Assistant', 'Verdict', 'Hearing']
+    if questionnaire == 500:
+        entete = ['ID', 'code', 'Assistant','Filecode', 'Completed', 'prenom', 'dob', 'sex']
+    else:
+        entete = ['ID', 'code', 'Assistant', 'Verdict', 'Hearing']
     if questionnaire == 4:
         entete.append('Filecode')
         entete.append('Completed')
     for question in questions:
-        entete.append(question['varname'])
+        if questionnaire != 500:
+            entete.append(question['varname'])
     toutesleslignes.append(entete)
     for personne in personnes:
         assistants = MBresultats.objects.filter(personne_id=personne['id']).values_list('assistant_id', flat=True).distinct()
         for assistant in assistants:
-            if questionnaire == 4:
+            if questionnaire == 500:
+                ligne = [personne['id'], personne['code'],  assistant, personne['filecode'], personne['completed'], personne['prenom'], str(personne['dob'])[0:10], personne['sdsexe']]
+                toutesleslignes.append(ligne)
+            elif questionnaire == 4:
                 ligne = [personne['id'], personne['code'],  assistant, 'NA','NA', personne['filecode'], personne['completed']]
                 for question in questions:
                     truc = faitdonnee(personne['id'], question['id'], assistant, 100, 100)
@@ -369,7 +376,7 @@ def fait_csv(questionnaire, personnes, questions, iteration):
 
 @login_required(login_url=settings.LOGIN_URI)
 def prepare_export(request):
-    questionnaires = Questionnaire.objects.filter(Q(id__lte=30))
+    questionnaires = Questionnaire.objects.filter(Q(id__lte=30) | Q(id = 500))
     if 'ExporterS' in request.POST:
         questionnaire = request.POST.get('questionnaireid')
         seuil = request.POST.get('seuil')
