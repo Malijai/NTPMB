@@ -376,7 +376,7 @@ def fait_csv(questionnaire, personnes, questions, iteration):
 
 @login_required(login_url=settings.LOGIN_URI)
 def prepare_export(request):
-    questionnaires = Questionnaire.objects.filter(Q(id__lte=30) | Q(id = 500))
+    questionnaires = Questionnaire.objects.filter(Q(id__lte=30) | Q(id=500))
     if 'ExporterS' in request.POST:
         questionnaire = request.POST.get('questionnaireid')
         seuil = request.POST.get('seuil')
